@@ -225,3 +225,7 @@
   stopniowo znika w wejsciu, glowa rosnie na wyjsciu. Renderer:
   polyline weza rozcinana na max 3 kawalki w miejscach wyrw
   (>2x SEG_DIST), kazdy kawalek osobna para Line.
+- Fix: żaba była do góry nogami — świat ma odwróconą oś Y
+  (Scale.y=-cell, +y świata = dół ekranu). Oczy/łapy/skok
+  odwrócone. Dotyczyło wszystkich niesymetrycznych rysunków —
+  żaba była pierwszym.

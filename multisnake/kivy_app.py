@@ -637,22 +637,23 @@ class GameWidget(FloatLayout):
             if i < len(w.frogs):
                 f = w.frogs[i]
                 fx, fy = f['x'], f['y']
-                # zwężenie w pionie; przy skoku lekki wyskok ciała
+                # uwaga: oś Y świata jest odwrócona (+y = w dół
+                # ekranu) — oczy na -y, łapy na +y
                 hop = abs(math.sin(math.pi * f['jump'])) \
                     if f['jump'] is not None else 0.0
-                fy += hop * 1.2
+                fy -= hop * 1.2           # skok = w górę ekranu
                 rw, rh = 0.62, 0.46       # pół szer./wys. ciała
                 fo.pos = (fx - rw - 0.07, fy - rh - 0.07)
                 fo.size = (2 * (rw + 0.07), 2 * (rh + 0.07))
                 # łapy tylne — owalne płetwy pod bokami ciała
-                l1.pos = (fx - 0.72, fy - 0.62)
+                l1.pos = (fx - 0.72, fy + 0.36)
                 l1.size = (0.5, 0.26)
-                l2.pos = (fx + 0.22, fy - 0.62)
+                l2.pos = (fx + 0.22, fy + 0.36)
                 l2.size = (0.5, 0.26)
                 ff.pos = (fx - rw, fy - rh)
                 ff.size = (2 * rw, 2 * rh)
-                # oczy wysoko ponad ciałem
-                er, ey = 0.15, fy + 0.30
+                # oczy ponad ciałem (wizualnie: -y świata)
+                er, ey = 0.15, fy - 0.30
                 w1.pos = (fx - 0.26 - er, ey - er)
                 w1.size = (2 * er, 2 * er)
                 w2.pos = (fx + 0.26 - er, ey - er)
