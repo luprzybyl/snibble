@@ -53,6 +53,7 @@ ZOOM_MIN, ZOOM_MAX = 14.0, 42.0   # komórek na wysokość ekranu
 MODULES = [
     ('castles', 'ZAMKI — śmiertelne mury na planszy'),
     ('cannons', 'ARMATY — działa strzelają kulami'),
+    ('frogs', 'ŻABY — skaczący pokarm +5'),
 ]
 
 # biomy: tło + rodzaj/gęstość dekoracji + kolor tekstu + obwódka
@@ -122,7 +123,8 @@ class GameWidget(FloatLayout):
         mods = mods or {}
         self.world = World(player_name=player_name,
                            castles=bool(mods.get('castles')),
-                           cannons=bool(mods.get('cannons')))
+                           cannons=bool(mods.get('cannons')),
+                           frogs=bool(mods.get('frogs')))
         self._kb_angle = None
         self.steer_pos = None
         self.boost = False
@@ -402,6 +404,24 @@ class GameWidget(FloatLayout):
             ei = Ellipse(pos=(0, 0), size=(0, 0))
             wl.add(ei)
             self._ball_g.append((eo, ei))
+        # żaby: pool 12 × (obrys, fill, 2 oczy, 2 źrenice)
+        self._frog_g = []
+        for _ in range(12):
+            wl.add(Color(0.10, 0.45, 0.20, 1))
+            fo = Ellipse(pos=(0, 0), size=(0, 0))
+            wl.add(fo)
+            wl.add(Color(0.25, 0.80, 0.30, 1))
+            ff = Ellipse(pos=(0, 0), size=(0, 0))
+            wl.add(ff)
+            wl.add(Color(1, 1, 1, 1))
+            w1 = Ellipse(pos=(0, 0), size=(0, 0))
+            w2 = Ellipse(pos=(0, 0), size=(0, 0))
+            wl.add(w1); wl.add(w2)
+            wl.add(Color(0, 0, 0, 1))
+            p1 = Ellipse(pos=(0, 0), size=(0, 0))
+            p2 = Ellipse(pos=(0, 0), size=(0, 0))
+            wl.add(p1); wl.add(p2)
+            self._frog_g.append((fo, ff, w1, w2, p1, p2))
         # węże: per-sid InstructionGroup dopinane do _wl w _draw
 
     def _decor_colors(self):
@@ -574,6 +594,30 @@ class GameWidget(FloatLayout):
                 ei.size = (0.2, 0.2)
             elif eo.size[0]:
                 eo.size = ei.size = (0, 0)
+
+        # żaby: pool, nieużywane zwijane do 0
+        for i, (fo, ff, w1, w2, p1, p2) in enumerate(self._frog_g):
+            if i < len(w.frogs):
+                f = w.frogs[i]
+                fx, fy = f['x'], f['y']
+                r = 0.55
+                fo.pos = (fx - r - 0.08, fy - r - 0.08)
+                fo.size = (2 * (r + 0.08), 2 * (r + 0.08))
+                ff.pos = (fx - r, fy - r)
+                ff.size = (2 * r, 2 * r)
+                er = 0.14
+                w1.pos = (fx - 0.24 - er, fy + 0.18 - er)
+                w1.size = (2 * er, 2 * er)
+                w2.pos = (fx + 0.24 - er, fy + 0.18 - er)
+                w2.size = (2 * er, 2 * er)
+                pr = 0.06
+                p1.pos = (w1.pos[0] + er - pr, w1.pos[1] + er - pr)
+                p1.size = (2 * pr, 2 * pr)
+                p2.pos = (w2.pos[0] + er - pr, w2.pos[1] + er - pr)
+                p2.size = (2 * pr, 2 * pr)
+            elif fo.size[0]:
+                fo.size = ff.size = w1.size = w2.size = p1.size \
+                    = p2.size = (0, 0)
 
     def _head(self, s, g):
         hx, hy = s.head

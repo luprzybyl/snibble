@@ -213,3 +213,8 @@
   w jedn. swiata — pool armat i glowy wezy tworzone bez size=.
   Fix: Ellipse(pos=(0,0), size=(0,0)) przy tworzeniu — nigdy nie
   wyrenderuja sie jako olbrzym. + debug 'g' = dump _wl do /tmp.
+- Modul ZABY (toggle 'frogs', 8 szt.): skoki co 0.8-2.2 s na 3-7
+  komorek (lądowiska bez przeszkod). Zjedzenie +5 (także w locie),
+  natychmiastowy respawn. Boty gonia żabe gdy bliższa niz ~1.5x
+  krysztal. Render: pool 12 grup elips (cialo+oczy+zrenice).
+- Debug: klawisz 'g' dumpuje _wl do /tmp/wl_dump.txt + screenshot.

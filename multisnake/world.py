@@ -46,6 +46,12 @@ CANNON_PERIOD = (2.5, 4.5)  # s — okres strzału (losowy)
 CANNON_RANGE = (18.0, 40.0) # zasięg pocisku (losowy)
 BULLET_SPEED = 15.0       # komórek/s
 BULLET_R = 0.3
+FROG_COUNT = 8            # żab na planszy (moduł)
+FROG_R = 0.55             # promień żaby (zjadanie)
+FROG_IDLE = (0.8, 2.2)    # s — pauza między skokami
+FROG_HOP_T = 0.35         # s — czas lotu
+FROG_HOP_D = (3.0, 7.0)   # zasięg skoku
+FROG_VALUE = 5            # +długość za zjedzenie
 BOT_THINK_DIV = 3                # bot myśli co 3. tick (rozmieszczone po sid)
 
 DIRS8 = {
@@ -145,7 +151,7 @@ class Snake:
 
 class World:
     def __init__(self, seed=None, player_name="Ty", castles=False,
-                 cannons=False):
+                 cannons=False, frogs=False):
         self.rng = random.Random(seed)
         self.time = 0.0
         self.tick_count = 0
@@ -168,6 +174,7 @@ class World:
             self._spawn(i + 1, BOT_NAMES[i % len(BOT_NAMES)],
                         2 + i % 6, is_bot=True)
         self._fill_crystals()
+        self.frogs = self._gen_frogs() if frogs else []
 
     def _gen_castles(self):
         """Rozstaw zamki: losowe pozycje, min. odstępy od siebie
@@ -243,6 +250,59 @@ class World:
             if dx * dx + dy * dy < r * r:
                 return True
         return False
+
+    def _gen_frogs(self):
+        """Żaby: losowe wolne pozycje (z dala od głów na starcie)."""
+        return [{'x': x, 'y': y,
+                 'idle': self.rng.uniform(*FROG_IDLE), 'jump': None,
+                 'eaten': False}
+                for _ in range(FROG_COUNT)
+                for x, y in [self._free_spot()]]
+
+    def _tick_frogs(self, dt):
+        """Skoki żab + zjadanie (+FROG_VALUE długości)."""
+        eat_d2 = (HEAD_R + FROG_R + 0.3) ** 2
+        for s in self.snakes:
+            if not s.alive:
+                continue
+            hx, hy = s.head
+            for f in self.frogs:
+                if not f['eaten'] and dist2(hx, hy, f['x'], f['y']) \
+                        < eat_d2:
+                    f['eaten'] = True
+                    s.length += FROG_VALUE
+        self.frogs = [f for f in self.frogs if not f['eaten']]
+        while len(self.frogs) < FROG_COUNT:
+            x, y = self._free_spot()
+            self.frogs.append({'x': x, 'y': y,
+                               'idle': self.rng.uniform(*FROG_IDLE),
+                               'jump': None, 'eaten': False})
+        for f in self.frogs:
+            if f['jump'] is not None:
+                f['jump'] += dt / FROG_HOP_T
+                t = min(f['jump'], 1.0)
+                f['x'] = f['x0'] + (f['tx'] - f['x0']) * t
+                f['y'] = f['y0'] + (f['ty'] - f['y0']) * t
+                if t >= 1.0:
+                    f['jump'] = None
+                    f['idle'] = self.rng.uniform(*FROG_IDLE)
+            else:
+                f['idle'] -= dt
+                if f['idle'] <= 0:
+                    for _ in range(10):
+                        a = self.rng.uniform(0, 2 * math.pi)
+                        d = self.rng.uniform(*FROG_HOP_D)
+                        tx = f['x'] + math.cos(a) * d
+                        ty = f['y'] + math.sin(a) * d
+                        if (2 <= tx < WORLD_W - 2
+                                and 2 <= ty < WORLD_H - 2
+                                and not self._hit_obstacle(tx, ty)):
+                            f['jump'] = 0.0
+                            f['x0'], f['y0'] = f['x'], f['y']
+                            f['tx'], f['ty'] = tx, ty
+                            break
+                    else:
+                        f['idle'] = 0.3
 
     def _gen_cannons(self):
         """Armaty: losowe pozycje (nie w murach), kąt, zasięg, okres."""
@@ -372,6 +432,8 @@ class World:
                     self._respawn(s)
         if self.cannons:
             self._tick_cannons(dt)
+        if self.frogs:
+            self._tick_frogs(dt)
         self.occ = self._occupancy()
         self._collide()
         self._expire_crystals()

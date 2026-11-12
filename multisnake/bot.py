@@ -17,8 +17,17 @@ def decide(world, s):
                           key=lambda kv: dist2(hx, hy,
                                                kv[0][0] + .5, kv[0][1] + .5))
         tx, ty = cx + .5, cy + .5
+        target_d2 = dist2(hx, hy, tx, ty)
     else:
         tx, ty = WORLD_W / 2, WORLD_H / 2
+        target_d2 = 1e9
+
+    # żaba = 5× wartość — goni, jeśli niewiele dalej niż kryształ
+    if world.frogs:
+        f = min(world.frogs,
+                key=lambda f: dist2(hx, hy, f['x'], f['y']))
+        if dist2(hx, hy, f['x'], f['y']) < target_d2 * 1.5:
+            tx, ty = f['x'], f['y']
 
     # ofensywa: krótszy przeciwnik w pobliżu
     for o in world.snakes:
