@@ -52,6 +52,9 @@ FROG_IDLE = (0.8, 2.2)    # s — pauza między skokami
 FROG_HOP_T = 0.35         # s — czas lotu
 FROG_HOP_D = (3.0, 7.0)   # zasięg skoku
 FROG_VALUE = 5            # +długość za zjedzenie
+PORTAL_PAIRS = 3          # par portali (moduł)
+PORTAL_R = 1.0            # promień wejścia
+PORTAL_CD = 1.2           # s — blokada re-entry po teleporcie
 BOT_THINK_DIV = 3                # bot myśli co 3. tick (rozmieszczone po sid)
 
 DIRS8 = {
@@ -108,6 +111,7 @@ class Snake:
         self.alive = True
         self.respawn_in = 0.0
         self.shield = SPAWN_SHIELD
+        self.portal_cd = 0.0
         ca, sa = math.cos(angle), math.sin(angle)
         self.spine = [(x - ca * SEG_DIST * i, y - sa * SEG_DIST * i)
                       for i in range(int(START_LEN / SEG_DIST) + 1)]
@@ -151,7 +155,7 @@ class Snake:
 
 class World:
     def __init__(self, seed=None, player_name="Ty", castles=False,
-                 cannons=False, frogs=False):
+                 cannons=False, frogs=False, portals=False):
         self.rng = random.Random(seed)
         self.time = 0.0
         self.tick_count = 0
@@ -175,6 +179,7 @@ class World:
                         2 + i % 6, is_bot=True)
         self._fill_crystals()
         self.frogs = self._gen_frogs() if frogs else []
+        self.portals = self._gen_portals() if portals else []
 
     def _gen_castles(self):
         """Rozstaw zamki: losowe pozycje, min. odstępy od siebie
@@ -303,6 +308,45 @@ class World:
                             break
                     else:
                         f['idle'] = 0.3
+
+    def _gen_portals(self):
+        """PORTAL_PAIRS × 2 portale; min. 30 komórek między nimi."""
+        ports = []
+        for pair in range(PORTAL_PAIRS):
+            for _ in range(2):
+                for _try in range(200):
+                    x = self.rng.uniform(10, WORLD_W - 10)
+                    y = self.rng.uniform(10, WORLD_H - 10)
+                    if self._near_obstacle(x, y, 2.0):
+                        continue
+                    if any(dist2(x, y, q['x'], q['y']) < 900
+                           for q in ports):
+                        continue
+                    ports.append({'x': x, 'y': y, 'pair': pair})
+                    break
+        return ports
+
+    def _tick_portals(self, dt):
+        """Wjazd w portal = teleport całego kręgosłupa do pary."""
+        for s in self.snakes:
+            if not s.alive:
+                continue
+            if s.portal_cd > 0:
+                s.portal_cd -= dt
+                continue
+            hx, hy = s.head
+            for p in self.portals:
+                if dist2(hx, hy, p['x'], p['y']) >= PORTAL_R ** 2:
+                    continue
+                q = next(q for q in self.portals
+                         if q['pair'] == p['pair'] and q is not p)
+                ca, sa = math.cos(s.angle), math.sin(s.angle)
+                dx = q['x'] + ca * 1.3 - hx
+                dy = q['y'] + sa * 1.3 - hy
+                s.spine = [(x + dx, y + dy) for x, y in s.spine]
+                s.portal_cd = PORTAL_CD
+                s.shield = max(s.shield, 0.6)
+                break
 
     def _gen_cannons(self):
         """Armaty: losowe pozycje (nie w murach), kąt, zasięg, okres."""
@@ -434,6 +478,8 @@ class World:
             self._tick_cannons(dt)
         if self.frogs:
             self._tick_frogs(dt)
+        if self.portals:
+            self._tick_portals(dt)
         self.occ = self._occupancy()
         self._collide()
         self._expire_crystals()

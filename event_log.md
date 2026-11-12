@@ -218,3 +218,6 @@
   natychmiastowy respawn. Boty gonia żabe gdy bliższa niz ~1.5x
   krysztal. Render: pool 12 grup elips (cialo+oczy+zrenice).
 - Debug: klawisz 'g' dumpuje _wl do /tmp/wl_dump.txt + screenshot.
+- Modul PORTALE (toggle 'portals', 3 pary kolorowane): wjazd =
+  teleport calego kregoslupa do partnera (+1.3 po kierunku jazdy).
+  Cooldown 1.2 s + shield 0.6 s na wyjsciu. Boty uzywaja mimochodem.

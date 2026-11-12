@@ -54,7 +54,10 @@ MODULES = [
     ('castles', 'ZAMKI — śmiertelne mury na planszy'),
     ('cannons', 'ARMATY — działa strzelają kulami'),
     ('frogs', 'ŻABY — skaczący pokarm +5'),
+    ('portals', 'PORTALE — teleporty w pary'),
 ]
+PORTAL_COLS = [(0.0, 0.85, 1.0, 1), (1.0, 0.3, 0.85, 1),
+               (1.0, 0.65, 0.10, 1)]
 
 # biomy: tło + rodzaj/gęstość dekoracji + kolor tekstu + obwódka
 FLOWER_COLS = [(1.0, 0.6, 0.75, 0.9), (1.0, 0.85, 0.3, 0.9),
@@ -124,7 +127,8 @@ class GameWidget(FloatLayout):
         self.world = World(player_name=player_name,
                            castles=bool(mods.get('castles')),
                            cannons=bool(mods.get('cannons')),
-                           frogs=bool(mods.get('frogs')))
+                           frogs=bool(mods.get('frogs')),
+                           portals=bool(mods.get('portals')))
         self._kb_angle = None
         self.steer_pos = None
         self.boost = False
@@ -425,6 +429,18 @@ class GameWidget(FloatLayout):
             wl.add(p1); wl.add(p2)
             self._frog_g.append(
                 (fo, l1, l2, ff, w1, w2, p1, p2))
+        # portale: statyczne pierścienie (obrys + dziura)
+        for p in self.world.portals:
+            col = PORTAL_COLS[p['pair'] % len(PORTAL_COLS)]
+            wl.add(Color(*_outline(col)))
+            wl.add(Ellipse(pos=(p['x'] - 1.1, p['y'] - 1.1),
+                           size=(2.2, 2.2)))
+            wl.add(Color(*col))
+            wl.add(Ellipse(pos=(p['x'] - 0.95, p['y'] - 0.95),
+                           size=(1.9, 1.9)))
+            wl.add(Color(0.05, 0.05, 0.12, 1))
+            wl.add(Ellipse(pos=(p['x'] - 0.55, p['y'] - 0.55),
+                           size=(1.1, 1.1)))
         # węże: per-sid InstructionGroup dopinane do _wl w _draw
 
     def _decor_colors(self):
