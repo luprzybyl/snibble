@@ -404,15 +404,17 @@ class GameWidget(FloatLayout):
             ei = Ellipse(pos=(0, 0), size=(0, 0))
             wl.add(ei)
             self._ball_g.append((eo, ei))
-        # żaby: pool 12 × (obrys, fill, 2 oczy, 2 źrenice)
+        # żaby: pool 12 × (obrys, 2 łapy+ciało, 2 oczy, 2 źrenice)
         self._frog_g = []
         for _ in range(12):
             wl.add(Color(0.10, 0.45, 0.20, 1))
             fo = Ellipse(pos=(0, 0), size=(0, 0))
             wl.add(fo)
             wl.add(Color(0.25, 0.80, 0.30, 1))
+            l1 = Ellipse(pos=(0, 0), size=(0, 0))
+            l2 = Ellipse(pos=(0, 0), size=(0, 0))
             ff = Ellipse(pos=(0, 0), size=(0, 0))
-            wl.add(ff)
+            wl.add(l1); wl.add(l2); wl.add(ff)
             wl.add(Color(1, 1, 1, 1))
             w1 = Ellipse(pos=(0, 0), size=(0, 0))
             w2 = Ellipse(pos=(0, 0), size=(0, 0))
@@ -421,7 +423,8 @@ class GameWidget(FloatLayout):
             p1 = Ellipse(pos=(0, 0), size=(0, 0))
             p2 = Ellipse(pos=(0, 0), size=(0, 0))
             wl.add(p1); wl.add(p2)
-            self._frog_g.append((fo, ff, w1, w2, p1, p2))
+            self._frog_g.append(
+                (fo, l1, l2, ff, w1, w2, p1, p2))
         # węże: per-sid InstructionGroup dopinane do _wl w _draw
 
     def _decor_colors(self):
@@ -595,29 +598,41 @@ class GameWidget(FloatLayout):
             elif eo.size[0]:
                 eo.size = ei.size = (0, 0)
 
-        # żaby: pool, nieużywane zwijane do 0
-        for i, (fo, ff, w1, w2, p1, p2) in enumerate(self._frog_g):
+        # żaby: owalne ciało, łapy, oczy wystające ponad łeb;
+        # nieużywane sloty zwijane do 0
+        for i, (fo, l1, l2, ff, w1, w2, p1, p2) in \
+                enumerate(self._frog_g):
             if i < len(w.frogs):
                 f = w.frogs[i]
                 fx, fy = f['x'], f['y']
-                r = 0.55
-                fo.pos = (fx - r - 0.08, fy - r - 0.08)
-                fo.size = (2 * (r + 0.08), 2 * (r + 0.08))
-                ff.pos = (fx - r, fy - r)
-                ff.size = (2 * r, 2 * r)
-                er = 0.14
-                w1.pos = (fx - 0.24 - er, fy + 0.18 - er)
+                # zwężenie w pionie; przy skoku lekki wyskok ciała
+                hop = abs(math.sin(math.pi * f['jump'])) \
+                    if f['jump'] is not None else 0.0
+                fy += hop * 1.2
+                rw, rh = 0.62, 0.46       # pół szer./wys. ciała
+                fo.pos = (fx - rw - 0.07, fy - rh - 0.07)
+                fo.size = (2 * (rw + 0.07), 2 * (rh + 0.07))
+                # łapy tylne — owalne płetwy pod bokami ciała
+                l1.pos = (fx - 0.72, fy - 0.62)
+                l1.size = (0.5, 0.26)
+                l2.pos = (fx + 0.22, fy - 0.62)
+                l2.size = (0.5, 0.26)
+                ff.pos = (fx - rw, fy - rh)
+                ff.size = (2 * rw, 2 * rh)
+                # oczy wysoko ponad ciałem
+                er, ey = 0.15, fy + 0.30
+                w1.pos = (fx - 0.26 - er, ey - er)
                 w1.size = (2 * er, 2 * er)
-                w2.pos = (fx + 0.24 - er, fy + 0.18 - er)
+                w2.pos = (fx + 0.26 - er, ey - er)
                 w2.size = (2 * er, 2 * er)
-                pr = 0.06
+                pr = 0.065
                 p1.pos = (w1.pos[0] + er - pr, w1.pos[1] + er - pr)
                 p1.size = (2 * pr, 2 * pr)
                 p2.pos = (w2.pos[0] + er - pr, w2.pos[1] + er - pr)
                 p2.size = (2 * pr, 2 * pr)
             elif fo.size[0]:
-                fo.size = ff.size = w1.size = w2.size = p1.size \
-                    = p2.size = (0, 0)
+                fo.size = l1.size = l2.size = ff.size = w1.size \
+                    = w2.size = p1.size = p2.size = (0, 0)
 
     def _head(self, s, g):
         hx, hy = s.head
