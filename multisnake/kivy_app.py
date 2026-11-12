@@ -22,8 +22,8 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 
 from .bot import decide
-from .world import (BODY_R, WORLD_H, WORLD_W, World, ang_diff,
-                    norm_angle)
+from .world import (BODY_R, SEG_DIST, WORLD_H, WORLD_W, World,
+                    ang_diff, norm_angle)
 
 KEY_DIRS = {
     273: (0, -1), 274: (0, 1), 275: (1, 0), 276: (-1, 0),   # strzałki
@@ -451,16 +451,20 @@ class GameWidget(FloatLayout):
     def _mk_snake(self, col):
         """Nowy komplet instrukcji węża: 2 linie + głowa + 2 oczka."""
         oc = _outline(col)
-        lo = Line(joint='bevel', cap='round')
-        li = Line(joint='bevel', cap='round')
+        lines = []
+        for _ in range(3):       # max 3 kawałki (portalowe wyrwy)
+            lo = Line(joint='bevel', cap='round')
+            li = Line(joint='bevel', cap='round')
+            lines.append((lo, li))
         ho, hf = (Ellipse(pos=(0, 0), size=(0, 0)) for _ in range(2))
         w1, w2 = (Ellipse(pos=(0, 0), size=(0, 0)) for _ in range(2))
         p1, p2 = (Ellipse(pos=(0, 0), size=(0, 0)) for _ in range(2))
         g = InstructionGroup()
-        g.add(Color(*oc))
-        g.add(lo)
-        g.add(Color(*col))
-        g.add(li)
+        for lo, li in lines:
+            g.add(Color(*oc))
+            g.add(lo)
+            g.add(Color(*col))
+            g.add(li)
         g.add(Color(*oc))
         g.add(ho)
         g.add(Color(*col))
@@ -472,7 +476,7 @@ class GameWidget(FloatLayout):
         g.add(p1)
         g.add(p2)
         self._wl.add(g)
-        return {"grp": g, "lo": lo, "li": li, "ho": ho, "hf": hf,
+        return {"grp": g, "lines": lines, "ho": ho, "hf": hf,
                 "w1": w1, "w2": w2, "p1": p1, "p2": p2}
 
     def _bake_decor(self):
@@ -594,11 +598,23 @@ class GameWidget(FloatLayout):
                 g = self._mk_snake(SNAKE_RGB[s.color % len(SNAKE_RGB)])
                 self._snake_g[s.sid] = g
             sp = s.spine
-            pts = [c for p in sp[::2] + [sp[-1]] for c in p]
-            g["lo"].points = pts
-            g["lo"].width = BODY_R + 0.15
-            g["li"].points = pts
-            g["li"].width = BODY_R
+            sampled = sp[::2] + ([sp[-1]] if (len(sp) - 1) % 2 else [])
+            # rozcinaj polyline w miejscach wyrw (portal!)
+            gap2 = (SEG_DIST * 4) ** 2
+            pieces = [[sampled[0][0], sampled[0][1]]]
+            for i in range(1, len(sampled)):
+                px, py = sampled[i]
+                qx, qy = sampled[i - 1]
+                if (px - qx) ** 2 + (py - qy) ** 2 > gap2 \
+                        and len(pieces) < len(g["lines"]):
+                    pieces.append([])
+                pieces[-1] += [px, py]
+            for i, (lo, li) in enumerate(g["lines"]):
+                pts = pieces[i] if i < len(pieces) else []
+                lo.points = pts
+                lo.width = BODY_R + 0.15
+                li.points = pts
+                li.width = BODY_R
             self._head(s, g)
         for sid in set(self._snake_g) - alive:
             self._wl.remove(self._snake_g.pop(sid)["grp"])

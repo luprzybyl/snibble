@@ -327,7 +327,8 @@ class World:
         return ports
 
     def _tick_portals(self, dt):
-        """Wjazd w portal = teleport całego kręgosłupa do pary."""
+        """Wjazd = teleport głowy; reszta kręgosłupa zostaje w
+        wejściu i jest konsumowana przez _trim."""
         for s in self.snakes:
             if not s.alive:
                 continue
@@ -341,9 +342,9 @@ class World:
                 q = next(q for q in self.portals
                          if q['pair'] == p['pair'] and q is not p)
                 ca, sa = math.cos(s.angle), math.sin(s.angle)
-                dx = q['x'] + ca * 1.3 - hx
-                dy = q['y'] + sa * 1.3 - hy
-                s.spine = [(x + dx, y + dy) for x, y in s.spine]
+                # teleport TYLKO głowy: wąż "przelewa się" przez
+                # portal — ogon znika w wejściu wraz z trimem
+                s.spine[0] = (q['x'] + ca * 1.3, q['y'] + sa * 1.3)
                 s.portal_cd = PORTAL_CD
                 s.shield = max(s.shield, 0.6)
                 break

@@ -221,3 +221,7 @@
 - Modul PORTALE (toggle 'portals', 3 pary kolorowane): wjazd =
   teleport calego kregoslupa do partnera (+1.3 po kierunku jazdy).
   Cooldown 1.2 s + shield 0.6 s na wyjsciu. Boty uzywaja mimochodem.
+- Portale: teleport tylko GLOWY (nie calego kregoslupa) — ogon
+  stopniowo znika w wejsciu, glowa rosnie na wyjsciu. Renderer:
+  polyline weza rozcinana na max 3 kawalki w miejscach wyrw
+  (>2x SEG_DIST), kazdy kawalek osobna para Line.
