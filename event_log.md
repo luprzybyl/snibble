@@ -236,3 +236,5 @@
 - Ikony v2: dzialo jako scieta lufa+kolo+kula (koniec z dwuznacznym
   ksztaltem), portale rozstawione z wchodzacym/wychodzacym wezem,
   blyskawica ostra (miter+square), zamek = mur z blankami+luk+flaga.
+- build_apk.sh: skrypt budujacy oba archy (armeabi-v7a + arm64-v8a),
+  przelacza android.archs, przywraca spec, raportuje wynik.
