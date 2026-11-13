@@ -92,9 +92,10 @@ class IconWidget(Widget):
     def _i_retry(self, cx, cy, u):
         Color(1, 1, 1, 1)
         r = .62 * u
-        Line(circle=(cx, cy, r, 50, 400), width=u * .11)
-        # grot na końcu łuku (~40°), styczna ↻ — wyraźny trójkąt
-        a = math.radians(40)
+        # łuk 270°: od 135° do 405°(=45°); przerwa w prawym górnym
+        Line(circle=(cx, cy, r, 135, 405), width=u * .11)
+        # grot na końcu łuku (45°), styczna ↻ — krótki trójkąt
+        a = math.radians(45)
         px, py = cx + r * math.cos(a), cy + r * math.sin(a)
         tx, ty = math.sin(a), -math.cos(a)
         nx, ny = math.cos(a), math.sin(a)
