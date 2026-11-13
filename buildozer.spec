@@ -54,6 +54,9 @@ android.permissions =
 # (str) The Android arch to build for, choices: armeabi-v7a, arm64-v8a, x86, x86_64
 android.archs = armeabi-v7a
 
+# (bool) Accept SDK licenses automatically (potrzebne w CI, bez TTY)
+android.accept_sdk_license = True
+
 # (bool) Enables Android auto backup and allows cloud backups
 #android.allow_backup = True
 
