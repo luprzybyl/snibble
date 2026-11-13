@@ -34,7 +34,7 @@ UI is pictograms only — nothing to translate.
 ## Run it
 
 ```bash
-python3 -m venv .venv && .venv/bin/pip install kivy
+python3 -m venv .venv python3 -m venv .venv && .venv/bin/pip install kivypython3 -m venv .venv && .venv/bin/pip install kivy .venv/bin/pip install -r requirements.txt
 
 # Kivy app (menu → name → play)
 .venv/bin/python main.py
