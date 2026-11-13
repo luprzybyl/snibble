@@ -1,3 +1,5 @@
+![Snibble](docs/header.png)
+
 # Snibble
 
 A slither.io / Snake Clash-style game for kids — **no ads, no shop, no
