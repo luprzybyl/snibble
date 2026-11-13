@@ -284,9 +284,6 @@ class GameWidget(FloatLayout):
         self.name_labels = {}
 
         fg = self.theme["fg"]
-        self.lbl_len = Label(markup=True, font_size='22sp',
-                             pos_hint={'x': 0.01, 'top': 0.99},
-                             size_hint=(None, None), color=fg)
         self.lbl_board = Label(markup=True, font_size='16sp', halign='left',
                                valign='top', pos_hint={'right': 0.99, 'top': 0.99},
                                size_hint=(None, None), color=fg)
@@ -306,7 +303,7 @@ class GameWidget(FloatLayout):
                                pos_hint={'x': 0.02, 'y': 0.02})
         self.btn_zin.bind(on_release=lambda *_: self._zoom(-3))
         self.btn_zout.bind(on_release=lambda *_: self._zoom(3))
-        for wdg in (self.lbl_len, self.lbl_board, self.btn_boost,
+        for wdg in (self.lbl_board, self.btn_boost,
                     self.btn_zin, self.btn_zout):
             self.add_widget(wdg)
         # desktop: śledź kursor bez klikania; na dotyku nie ma mouse_pos
@@ -891,11 +888,7 @@ class GameWidget(FloatLayout):
     def _hud(self):
         p = self.world.player
         if p is None:
-            self._set_lbl(self.lbl_len, "łączenie...")
             return
-        self._set_lbl(self.lbl_len,
-                      f"[b]{p.name}[/b]  LEN {p.length:.0f}"
-                      f"  POZ {int(p.length)}")
         board = sorted(self.world.snakes, key=lambda s: -s.length)
         pos = next(i for i, s in enumerate(board) if s is p)
         lo = max(0, min(pos - 2, len(board) - 5))
