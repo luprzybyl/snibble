@@ -54,6 +54,10 @@ android.permissions =
 # (str) The Android arch to build for, choices: armeabi-v7a, arm64-v8a, x86, x86_64
 android.archs = armeabi-v7a
 
+# (str) lokalne receptury p4a — vendored kivy z python_depends=[filetype]
+# (upstream ciągnie requests -> charset_normalizer z wheel-tagiem Androida)
+p4a.local_recipes = recipes
+
 # (bool) Accept SDK licenses automatically (potrzebne w CI, bez TTY)
 android.accept_sdk_license = True
 
@@ -62,10 +66,6 @@ android.accept_sdk_license = True
 
 [buildozer]
 
-# (str) lokalne receptury p4a — vendored kivy z python_depends=['filetype']
-# (upstream ciągnie requests -> charset_normalizer z wheel-tagiem Androida
-# i wywala build; vendoring = deterministyczny build też w CI)
-p4a.local_recipes = recipes
 
 # (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
 log_level = 2
