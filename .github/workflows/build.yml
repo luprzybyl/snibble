@@ -1,0 +1,58 @@
+name: Build APK
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [armeabi-v7a, arm64-v8a]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select arch in buildozer.spec
+        run: sed -i "s/^android\.archs = .*/android.archs = ${{ matrix.arch }}/" buildozer.spec
+
+      - name: Build APK with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
+        with:
+          workdir: .
+          buildozer_version: stable
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-${{ matrix.arch }}
+          path: bin/*.apk
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version from buildozer.spec
+        id: ver
+        run: echo "v=$(grep -oP '^version = \K.*' buildozer.spec)" >> "$GITHUB_OUTPUT"
+
+      - name: Download APK artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: apk-*
+          path: dist
+          merge-multiple: true
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.ver.outputs.v }}-b${{ github.run_number }}
+          name: Snibble ${{ steps.ver.outputs.v }} (build ${{ github.run_number }})
+          files: dist/*.apk
+          generate_release_notes: true
