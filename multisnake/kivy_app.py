@@ -92,17 +92,17 @@ class IconWidget(Widget):
     def _i_retry(self, cx, cy, u):
         Color(1, 1, 1, 1)
         r = .62 * u
-        Line(circle=(cx, cy, r, 50, 400), width=u * .2)
+        Line(circle=(cx, cy, r, 50, 400), width=u * .11)
         # grot na końcu łuku (~40°), styczna ↻ — wyraźny trójkąt
         a = math.radians(40)
         px, py = cx + r * math.cos(a), cy + r * math.sin(a)
         tx, ty = math.sin(a), -math.cos(a)
         nx, ny = math.cos(a), math.sin(a)
-        tipx, tipy = px + tx * .7 * u, py + ty * .7 * u
-        bx, by = px + tx * .15 * u, py + ty * .15 * u
+        tipx, tipy = px + tx * .45 * u, py + ty * .45 * u
+        bx, by = px + tx * .08 * u, py + ty * .08 * u
         Triangle(points=(tipx, tipy,
-                         bx + nx * .28 * u, by + ny * .28 * u,
-                         bx - nx * .28 * u, by - ny * .28 * u))
+                         bx + nx * .24 * u, by + ny * .24 * u,
+                         bx - nx * .24 * u, by - ny * .24 * u))
 
     def _i_bolt(self, cx, cy, u):
         Color(1, .85, .1, 1)
