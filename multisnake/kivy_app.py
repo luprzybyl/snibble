@@ -105,38 +105,44 @@ class IconWidget(Widget):
                          bx - nx * .28 * u, by - ny * .28 * u))
 
     def _i_bolt(self, cx, cy, u):
-        Color(1, 1, .15, 1)
-        Line(points=(cx + .25 * u, cy + .75 * u,
-                     cx - .3 * u, cy - .05 * u,
-                     cx + .15 * u, cy - .05 * u,
-                     cx - .25 * u, cy - .75 * u),
-             width=u * .26, joint='round', cap='round')
+        Color(1, .85, .1, 1)
+        Line(points=(cx + .3 * u, cy + .8 * u,
+                     cx - .35 * u, cy + .02 * u,
+                     cx + .1 * u, cy + .02 * u,
+                     cx - .3 * u, cy - .8 * u),
+             width=u * .3, joint='miter', cap='square')
 
     def _i_castle(self, cx, cy, u):
         Color(.62, .45, .36, 1)
-        # mur łączący wieże
-        Rectangle(pos=(cx - .75 * u, cy - .7 * u), size=(1.5 * u, .85 * u))
-        # wieże — pełne sylwetki, blanki tylko na szczytach
-        Rectangle(pos=(cx - .75 * u, cy - .7 * u), size=(.5 * u, 1.45 * u))
-        Rectangle(pos=(cx + .25 * u, cy - .7 * u), size=(.5 * u, 1.45 * u))
-        for bx in (-.75, -.58, -.41, .25, .42, .59):
-            Rectangle(pos=(cx + bx * u, cy + .75 * u),
-                      size=(.16 * u, .18 * u))
-        # blanki na murze między wieżami
-        for bx in (-.13, .05):
-            Rectangle(pos=(cx + bx * u, cy + .15 * u),
-                      size=(.16 * u, .18 * u))
-        # brama — ciemna dziura
+        # korpus muru
+        Rectangle(pos=(cx - .75*u, cy - .7*u), size=(1.5*u, 1.15*u))
+        # blanki — 3 bloki z przerwami
+        for bx in (-.75, -.175, .4):
+            Rectangle(pos=(cx + bx*u, cy + .45*u), size=(.35*u, .3*u))
+        # flaga na środkowym blanku — natychmiast czytana jako zamek
+        Color(.85, .2, .2, 1)
+        Line(points=(cx, cy + .95*u, cx, cy + .45*u), width=u * .06)
+        Triangle(points=(cx, cy + .95*u, cx, cy + .72*u,
+                         cx + .38*u, cy + .83*u))
+        # brama — łuk
         Color(.15, .1, .08, 1)
-        Rectangle(pos=(cx - .13 * u, cy - .7 * u), size=(.26 * u, .5 * u))
+        Rectangle(pos=(cx - .2*u, cy - .7*u), size=(.4*u, .62*u))
+        Ellipse(pos=(cx - .2*u, cy - .1*u), size=(.4*u, .4*u))
 
     def _i_cannon(self, cx, cy, u):
-        Color(.4, .4, .46, 1)
-        Line(points=(cx - .2 * u, cy, cx + .55 * u, cy + .4 * u),
-             width=u * .38, cap='round')
-        Ellipse(pos=(cx - .55 * u, cy - .6 * u), size=(.7 * u, .7 * u))
+        Color(.42, .42, .48, 1)
+        # lufa — ścięty czworokąt, szeroka u nasady, wąska u wylotu
+        Mesh(vertices=[cx - .48*u, cy + .12*u, 0, 0,
+                       cx - .12*u, cy - .36*u, 0, 0,
+                       cx + .42*u, cy + .52*u, 0, 0,
+                       cx + .62*u, cy + .22*u, 0, 0],
+             indices=[0, 1, 2, 3], mode='triangle_strip')
+        # koło z piastą
+        Ellipse(pos=(cx - .6*u, cy - .75*u), size=(.55*u, .55*u))
         Color(.15, .15, .18, 1)
-        Ellipse(pos=(cx + .3 * u, cy - .55 * u), size=(.3 * u, .3 * u))
+        Ellipse(pos=(cx - .45*u, cy - .6*u), size=(.25*u, .25*u))
+        # kula armatnia
+        Ellipse(pos=(cx + .35*u, cy - .55*u), size=(.3*u, .3*u))
 
     def _i_frog(self, cx, cy, u):
         Color(.18, .7, .25, 1)
@@ -149,13 +155,25 @@ class IconWidget(Widget):
         Ellipse(pos=(cx + .2 * u, cy + .39 * u), size=(.16 * u, .16 * u))
 
     def _i_portal(self, cx, cy, u):
+        # wąż wchodzi głową w lewy pierścień, wychodzi z prawego
+        Color(.2, .85, .3, 1)
+        Line(points=(cx - .98*u, cy + .2*u, cx - .9*u, cy + .28*u,
+                     cx - .8*u, cy + .18*u),
+             width=u * .12, cap='round')
+        Triangle(points=(cx - .62*u, cy + .02*u,
+                         cx - .82*u, cy + .16*u,
+                         cx - .78*u, cy - .04*u))
+        Line(points=(cx + .5*u, cy + .02*u, cx + .62*u, cy - .06*u,
+                     cx + .74*u, cy - .12*u),
+             width=u * .12, cap='round')
+        Triangle(points=(cx + .95*u, cy - .18*u,
+                         cx + .78*u, cy - .02*u,
+                         cx + .72*u, cy - .24*u))
+        # pierścienie — rozstawione szeroko, żeby nie robić ∞
         Color(*PORTAL_COLS[0])
-        Line(circle=(cx - .38 * u, cy, .3 * u), width=u * .13)
+        Line(circle=(cx - .52*u, cy, .26*u), width=u * .12)
         Color(*PORTAL_COLS[1])
-        Line(circle=(cx + .38 * u, cy, .3 * u), width=u * .13)
-        Color(.12, .06, .16, 1)
-        Ellipse(pos=(cx - .52 * u, cy - .14 * u), size=(.28 * u, .28 * u))
-        Ellipse(pos=(cx + .24 * u, cy - .14 * u), size=(.28 * u, .28 * u))
+        Line(circle=(cx + .52*u, cy, .26*u), width=u * .12)
 
     def _i_skull(self, cx, cy, u):
         Color(.92, .9, .85, 1)

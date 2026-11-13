@@ -233,3 +233,6 @@
   (play, retry, bolt, castle, cannon, frog, portal, skull).
   GRAJ=>trojkat, BOOST=>blyskawica, JESZCZE RAZ=>strzalka kolowa,
   KONIEC=>czaszka+wynik, toggles=>piktogramy. MENU i imie zostaja.
+- Ikony v2: dzialo jako scieta lufa+kolo+kula (koniec z dwuznacznym
+  ksztaltem), portale rozstawione z wchodzacym/wychodzacym wezem,
+  blyskawica ostra (miter+square), zamek = mur z blankami+luk+flaga.
