@@ -106,11 +106,12 @@ class IconWidget(Widget):
 
     def _i_bolt(self, cx, cy, u):
         Color(1, .85, .1, 1)
-        Line(points=(cx + .3 * u, cy + .8 * u,
-                     cx - .35 * u, cy + .02 * u,
-                     cx + .1 * u, cy + .02 * u,
-                     cx - .3 * u, cy - .8 * u),
-             width=u * .3, joint='miter', cap='square')
+        # wypełniona sylwetka błyskawicy (7 pkt, 5 trójkątów)
+        vs = [(-.4, .8), (-.4, -.08), (-.16, -.08), (-.16, -.8),
+              (.4, .16), (.08, .16), (.4, .8)]
+        Mesh(vertices=[c for x, y in vs for c in (cx + x*u, cy + y*u, 0, 0)],
+             indices=[0, 1, 6,  1, 6, 5,  2, 3, 4,  2, 4, 5,  1, 2, 5],
+             mode='triangles')
 
     def _i_castle(self, cx, cy, u):
         Color(.62, .45, .36, 1)
