@@ -229,3 +229,7 @@
   (Scale.y=-cell, +y świata = dół ekranu). Oczy/łapy/skok
   odwrócone. Dotyczyło wszystkich niesymetrycznych rysunków —
   żaba była pierwszym.
+- UI bez tekstu: IconWidget — piktogramy rysowane primitivami
+  (play, retry, bolt, castle, cannon, frog, portal, skull).
+  GRAJ=>trojkat, BOOST=>blyskawica, JESZCZE RAZ=>strzalka kolowa,
+  KONIEC=>czaszka+wynik, toggles=>piktogramy. MENU i imie zostaja.

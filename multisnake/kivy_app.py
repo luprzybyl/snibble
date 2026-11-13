@@ -12,7 +12,7 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.graphics import (Color, Ellipse, InstructionGroup, Line, Mesh,
                            PopMatrix, PushMatrix, Rectangle, Scale,
-                           Translate)
+                           Translate, Triangle)
 from kivy.metrics import dp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -20,6 +20,7 @@ from kivy.uix.checkbox import CheckBox
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
+from kivy.uix.widget import Widget
 
 from .bot import decide
 from .world import (BODY_R, SEG_DIST, WORLD_H, WORLD_W, World,
@@ -49,13 +50,138 @@ RAINBOW_RGB = [(1.0, 0.25, 0.35, 1), (0.25, 1.0, 0.4, 1),
                (0.35, 0.55, 1.0, 1)]
 ZOOM_MIN, ZOOM_MAX = 14.0, 42.0   # komórek na wysokość ekranu
 
-# opcjonalne moduły — toggle w menu, klucz -> World/bonus
+# opcjonalne moduły — toggle w menu, klucz -> World/bonus;
+# zamiast tekstu obok checkboxa rysowany piktogram (ikonizacja
+# = zero i18n, emoji na Androidzie i tak by nie zadziałały)
 MODULES = [
-    ('castles', 'ZAMKI — śmiertelne mury na planszy'),
-    ('cannons', 'ARMATY — działa strzelają kulami'),
-    ('frogs', 'ŻABY — skaczący pokarm +5'),
-    ('portals', 'PORTALE — teleporty w pary'),
+    ('castles', 'castle'),
+    ('cannons', 'cannon'),
+    ('frogs', 'frog'),
+    ('portals', 'portal'),
 ]
+
+
+class IconWidget(Widget):
+    """Piktogram rysowany prymitywami Kivy — niezależny od
+    czcionek. Jednostka u = połowa mniejszego boku widgetu."""
+    ICONS = ('play', 'retry', 'bolt', 'castle', 'cannon',
+             'frog', 'portal', 'skull')
+
+    def __init__(self, icon, **kw):
+        super().__init__(**kw)
+        self.icon = icon
+        self.bind(pos=lambda *_: self._redraw(),
+                  size=lambda *_: self._redraw())
+
+    def _redraw(self):
+        self.canvas.clear()
+        u = min(self.size) / 2
+        if u <= 0:
+            return
+        cx, cy = self.center
+        draw = getattr(self, f'_i_{self.icon}')
+        with self.canvas:
+            draw(cx, cy, u)
+
+    def _i_play(self, cx, cy, u):
+        Color(1, 1, 1, 1)
+        Triangle(points=(cx - .5 * u, cy - .7 * u,
+                         cx - .5 * u, cy + .7 * u,
+                         cx + .7 * u, cy))
+
+    def _i_retry(self, cx, cy, u):
+        Color(1, 1, 1, 1)
+        r = .62 * u
+        Line(circle=(cx, cy, r, 50, 400), width=u * .2)
+        # grot na końcu łuku (~40°), styczna ↻ — wyraźny trójkąt
+        a = math.radians(40)
+        px, py = cx + r * math.cos(a), cy + r * math.sin(a)
+        tx, ty = math.sin(a), -math.cos(a)
+        nx, ny = math.cos(a), math.sin(a)
+        tipx, tipy = px + tx * .7 * u, py + ty * .7 * u
+        bx, by = px + tx * .15 * u, py + ty * .15 * u
+        Triangle(points=(tipx, tipy,
+                         bx + nx * .28 * u, by + ny * .28 * u,
+                         bx - nx * .28 * u, by - ny * .28 * u))
+
+    def _i_bolt(self, cx, cy, u):
+        Color(1, 1, .15, 1)
+        Line(points=(cx + .25 * u, cy + .75 * u,
+                     cx - .3 * u, cy - .05 * u,
+                     cx + .15 * u, cy - .05 * u,
+                     cx - .25 * u, cy - .75 * u),
+             width=u * .26, joint='round', cap='round')
+
+    def _i_castle(self, cx, cy, u):
+        Color(.62, .45, .36, 1)
+        # mur łączący wieże
+        Rectangle(pos=(cx - .75 * u, cy - .7 * u), size=(1.5 * u, .85 * u))
+        # wieże — pełne sylwetki, blanki tylko na szczytach
+        Rectangle(pos=(cx - .75 * u, cy - .7 * u), size=(.5 * u, 1.45 * u))
+        Rectangle(pos=(cx + .25 * u, cy - .7 * u), size=(.5 * u, 1.45 * u))
+        for bx in (-.75, -.58, -.41, .25, .42, .59):
+            Rectangle(pos=(cx + bx * u, cy + .75 * u),
+                      size=(.16 * u, .18 * u))
+        # blanki na murze między wieżami
+        for bx in (-.13, .05):
+            Rectangle(pos=(cx + bx * u, cy + .15 * u),
+                      size=(.16 * u, .18 * u))
+        # brama — ciemna dziura
+        Color(.15, .1, .08, 1)
+        Rectangle(pos=(cx - .13 * u, cy - .7 * u), size=(.26 * u, .5 * u))
+
+    def _i_cannon(self, cx, cy, u):
+        Color(.4, .4, .46, 1)
+        Line(points=(cx - .2 * u, cy, cx + .55 * u, cy + .4 * u),
+             width=u * .38, cap='round')
+        Ellipse(pos=(cx - .55 * u, cy - .6 * u), size=(.7 * u, .7 * u))
+        Color(.15, .15, .18, 1)
+        Ellipse(pos=(cx + .3 * u, cy - .55 * u), size=(.3 * u, .3 * u))
+
+    def _i_frog(self, cx, cy, u):
+        Color(.18, .7, .25, 1)
+        Ellipse(pos=(cx - .65 * u, cy - .5 * u), size=(1.3 * u, .95 * u))
+        Color(1, 1, 1, 1)
+        Ellipse(pos=(cx - .45 * u, cy + .3 * u), size=(.34 * u, .34 * u))
+        Ellipse(pos=(cx + .11 * u, cy + .3 * u), size=(.34 * u, .34 * u))
+        Color(.05, .1, .05, 1)
+        Ellipse(pos=(cx - .36 * u, cy + .39 * u), size=(.16 * u, .16 * u))
+        Ellipse(pos=(cx + .2 * u, cy + .39 * u), size=(.16 * u, .16 * u))
+
+    def _i_portal(self, cx, cy, u):
+        Color(*PORTAL_COLS[0])
+        Line(circle=(cx - .38 * u, cy, .3 * u), width=u * .13)
+        Color(*PORTAL_COLS[1])
+        Line(circle=(cx + .38 * u, cy, .3 * u), width=u * .13)
+        Color(.12, .06, .16, 1)
+        Ellipse(pos=(cx - .52 * u, cy - .14 * u), size=(.28 * u, .28 * u))
+        Ellipse(pos=(cx + .24 * u, cy - .14 * u), size=(.28 * u, .28 * u))
+
+    def _i_skull(self, cx, cy, u):
+        Color(.92, .9, .85, 1)
+        Ellipse(pos=(cx - .55 * u, cy - .35 * u), size=(1.1 * u, 1.05 * u))
+        Rectangle(pos=(cx - .28 * u, cy - .62 * u), size=(.56 * u, .3 * u))
+        Color(.1, .1, .12, 1)
+        Ellipse(pos=(cx - .38 * u, cy - .05 * u), size=(.3 * u, .3 * u))
+        Ellipse(pos=(cx + .08 * u, cy - .05 * u), size=(.3 * u, .3 * u))
+        Triangle(points=(cx, cy - .15 * u,
+                         cx - .1 * u, cy - .35 * u,
+                         cx + .1 * u, cy - .35 * u))
+        for tx in (-.18, 0, .18):
+            Line(points=(cx + tx * u, cy - .62 * u, cx + tx * u, cy - .34 * u),
+                 width=u * .05)
+
+
+def _attach_icon(widget, icon):
+    """Dokleja piktogram wycentrowany na widgecie (Button)."""
+    ic = IconWidget(icon)
+    widget.add_widget(ic)
+
+    def _sync(*_):
+        ic.pos, ic.size = widget.pos, widget.size
+    widget.bind(pos=_sync, size=_sync)
+    _sync()
+    return ic
 PORTAL_COLS = [(0.0, 0.85, 1.0, 1), (1.0, 0.3, 0.85, 1),
                (1.0, 0.65, 0.10, 1)]
 
@@ -144,11 +270,12 @@ class GameWidget(FloatLayout):
         self.lbl_board = Label(markup=True, font_size='16sp', halign='left',
                                valign='top', pos_hint={'right': 0.99, 'top': 0.99},
                                size_hint=(None, None), color=fg)
-        self.btn_boost = Button(text='BOOST', font_size='20sp',
+        self.btn_boost = Button(text='',
                                 size_hint=(None, None),
                                 size=(dp(120), dp(80)),
                                 pos_hint={'right': 0.98, 'y': 0.02},
                                 background_color=(1.0, 0.55, 0.2, 0.9))
+        _attach_icon(self.btn_boost, 'bolt')
         self.btn_boost.bind(on_press=lambda *_: setattr(self, 'boost', True))
         self.btn_boost.bind(on_release=lambda *_: setattr(self, 'boost', False))
         self.btn_zin = Button(text='+', font_size='28sp',
@@ -761,13 +888,18 @@ class GameWidget(FloatLayout):
 
     def _show_over(self):
         p = self.world.player
-        lbl = Label(markup=True, font_size='30sp',
-                    text=f"[b]KONIEC![/b]\n{p.name}: {p.length:.0f}",
-                    pos_hint={'center_x': 0.5, 'center_y': 0.6},
-                    size_hint=(None, None), color=(0.8, 0.1, 0.1, 1))
-        btn = Button(text='JESZCZE RAZ', font_size='22sp',
+        skull = IconWidget('skull', size_hint=(None, None),
+                           size=(dp(100), dp(100)),
+                           pos_hint={'center_x': 0.5, 'center_y': 0.68})
+        lbl = Label(markup=True, font_size='26sp',
+                    text=f"[b]{p.name}: {p.length:.0f}[/b]",
+                    pos_hint={'center_x': 0.5, 'center_y': 0.57},
+                    size_hint=(None, None), color=(0.95, 0.95, 0.95, 1))
+        btn = Button(text='',
                      size_hint=(None, None), size=(dp(220), dp(70)),
-                     pos_hint={'center_x': 0.5, 'center_y': 0.45})
+                     pos_hint={'center_x': 0.5, 'center_y': 0.44},
+                     background_color=(0.2, 0.7, 0.3, 1))
+        _attach_icon(btn, 'retry')
         btn.bind(on_release=lambda *_: self._restart())
         btn_menu = Button(text='MENU', font_size='22sp',
                           size_hint=(None, None), size=(dp(220), dp(70)),
@@ -775,7 +907,7 @@ class GameWidget(FloatLayout):
                           background_color=(0.4, 0.4, 0.4, 1))
         btn_menu.bind(
             on_release=lambda *_: App.get_running_app().show_menu())
-        self._over_widgets = [lbl, btn, btn_menu]
+        self._over_widgets = [skull, lbl, btn, btn_menu]
         for wdg in self._over_widgets:
             self.add_widget(wdg)
 
@@ -830,24 +962,24 @@ class MultiSnakeApp(App):
         self.ti = TextInput(hint_text='Twoje imię', multiline=False,
                             text=cfg.get('name', ''),
                             font_size='22sp', size_hint_y=None, height=dp(55))
-        btn = Button(text='GRAJ', font_size='24sp', size_hint_y=None,
+        btn = Button(text='', size_hint_y=None,
                      height=dp(60),
                      background_color=(0.2, 0.7, 0.3, 1))
+        _attach_icon(btn, 'play')
         btn.bind(on_release=lambda *_: self._start())
         box.add_widget(self.ti)
         box.add_widget(btn)
         # toggle modułów — dopisuj nowe do MODULES, tu samo się pojawi
-        for key, label in MODULES:
-            row = BoxLayout(orientation='horizontal', spacing=dp(8),
-                            size_hint_y=None, height=dp(40))
+        for key, icon in MODULES:
+            row = BoxLayout(orientation='horizontal', spacing=dp(10),
+                            size_hint_y=None, height=dp(44))
             cb = CheckBox(active=self.mods[key],
                           size_hint=(None, None), size=(dp(36), dp(36)))
             cb.bind(active=lambda _cb, v, k=key:
                     self.mods.__setitem__(k, v))
             row.add_widget(cb)
-            row.add_widget(Label(text=label, halign='left',
-                                 valign='middle', font_size='16sp',
-                                 color=(0.92, 0.92, 0.92, 1)))
+            row.add_widget(IconWidget(icon, size_hint=(None, None),
+                                      size=(dp(40), dp(40))))
             box.add_widget(row)
         return box
 
