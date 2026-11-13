@@ -3,6 +3,10 @@ name: Build APK
 on:
   push:
     branches: [master]
+    paths-ignore:
+      - '**.md'
+      - 'requirements.txt'
+      - '.github/**'
   workflow_dispatch:
 
 jobs:
