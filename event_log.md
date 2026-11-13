@@ -240,3 +240,7 @@
   przelacza android.archs, przywraca spec, raportuje wynik.
 - icon.png: ikona aplikacji — cyjanowa glowa weza gracza + kawalek
   ciala na tle laki (PIL, 1024->512). icon.filename w buildozer.spec.
+- REBRAND: MultiSnake -> Snibble (nazwa zajeta na Play). Pakiet
+  snibble/, SnibbleApp, spec: io.github.luprzybyl.snibble, ver 0.1.0.
+  Vendored recipe kivy do recipes/ + p4a.local_recipes (deterministyczny
+  build w CI — fix charset_normalizer zaszyty w repo).

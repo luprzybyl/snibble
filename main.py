@@ -27,9 +27,9 @@ if args.size:
     Config.set("graphics", "width", str(w))
     Config.set("graphics", "height", str(h))
 
-from multisnake.kivy_app import GameWidget, MultiSnakeApp
+from snibble.kivy_app import GameWidget, SnibbleApp
 
-app = MultiSnakeApp()
+app = SnibbleApp()
 if args.auto:
     app.autostart = GameWidget(player_name=args.name, auto=True)
 app.run()

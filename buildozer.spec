@@ -1,13 +1,13 @@
 [app]
 
 # (str) Title of your application
-title = MultiSnake
+title = Snibble
 
 # (str) Package name
-package.name = multisnake
+package.name = snibble
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = org.multisnake
+package.domain = io.github.luprzybyl
 
 # (str) Source code where the main.py live
 source.dir = .
@@ -16,7 +16,7 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,md
 
 # (str) Application versioning (method 1)
-version = 0.1
+version = 0.1.0
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
@@ -58,6 +58,11 @@ android.archs = armeabi-v7a
 #android.allow_backup = True
 
 [buildozer]
+
+# (str) lokalne receptury p4a — vendored kivy z python_depends=['filetype']
+# (upstream ciągnie requests -> charset_normalizer z wheel-tagiem Androida
+# i wywala build; vendoring = deterministyczny build też w CI)
+p4a.local_recipes = recipes
 
 # (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
 log_level = 2

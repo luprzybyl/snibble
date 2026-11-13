@@ -1,4 +1,4 @@
-# MultiSnake — dokumentacja
+# Snibble — dokumentacja
 
 Wielowężowa gra w stylu slither.io / Snake Clash! — bez reklam, bez
 sklepu, bez sieci. Granie na jednej planszy z botami. Działa
@@ -22,14 +22,14 @@ Pełne zasady: [ZASADY.md](ZASADY.md). Najważniejsze:
 ## Struktura projektu
 
 ```
-multisnake/
+snibble/
 ├── main.py                  # wejście Kivy (+ flagi demo/autopołączenia)
 ├── buildozer.spec           # konfiguracja budowy APK
-├── multisnake/
+├── snibble/
 │   ├── world.py             # symulacja: węże, kryształki, kolizje (bez UI)
 │   ├── bot.py               # AI botów (decide())
 │   ├── render.py            # renderer curses
-│   ├── __main__.py          # `python -m multisnake` — wersja terminalowa
+│   ├── __main__.py          # `python -m snibble` — wersja terminalowa
 │   └── kivy_app.py          # UI Kivy: menu, gra, HUD, ranking, biomy
 ├── ZASADY.md · PLAN.md · event_log.md
 ```
@@ -43,7 +43,7 @@ sama symulacja napędza terminal, desktop i Android.
 python3 -m venv .venv && .venv/bin/pip install kivy
 
 # tryb lokalny — terminal (ncurses)
-.venv/bin/python -m multisnake
+.venv/bin/python -m snibble
 
 # tryb lokalny — okno Kivy (menu: imię + GRAJ)
 .venv/bin/python main.py
@@ -68,7 +68,7 @@ python3 -m venv .venv && .venv/bin/pip install kivy
 ```bash
 pip install buildozer        # + zależności: openjdk, zlib, patch...
 buildozer -v android debug   # pierwszy build ~30-60 min (SDK+NDK ~2 GB)
-# → bin/multisnake-*.apk
+# → bin/snibble-*.apk
 ```
 
 `buildozer.spec`: orientacja landscape, **zero uprawnień** (gra
@@ -141,7 +141,7 @@ Opcje na 2027+, gdy weryfikacja obejmie wszystko:
   na tablecie włącz *Opcje programisty → Debugowanie USB*,
   podłącz kablem do komputera i:
   ```bash
-  adb install bin/multisnake-*.apk
+  adb install bin/snibble-*.apk
   ```
   Instalacje przez ADB są wyłączone z wymogu weryfikacji i okresu
   oczekiwania.

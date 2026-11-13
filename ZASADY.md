@@ -1,4 +1,4 @@
-# MultiSnake — zasady gry
+# Snibble — zasady gry
 
 Wariant slither.io w konsoli: jedna plansza, wiele wężów. Gracz + boty AI.
 Bez sieci — "multi" oznacza mnogość gadów, nie połączeń.

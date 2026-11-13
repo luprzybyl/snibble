@@ -1,4 +1,4 @@
-"""Symulacja świata MultiSnake — czysty Python, bez zależności od UI.
+"""Symulacja świata Snibble — czysty Python, bez zależności od UI.
 
 Model ciągły: pozycje float w "komórkach", wąż ma kierunek (kąt) i skręca
 płynnie z ograniczoną prędkością kątową. Kolizje rasteryzowane na siatkę

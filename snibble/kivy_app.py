@@ -1,4 +1,4 @@
-"""Front Kivy — MultiSnake na Androida i desktop.
+"""Front Kivy — Snibble na Androida i desktop.
 
 Logika gry: world.py + bot.py (bez zmian). Tu: kamera za graczem,
 rysowanie "komiksowe" (grube obrysy, pastelowa paleta, oczki)
@@ -931,11 +931,11 @@ class GameWidget(FloatLayout):
         self.world.respawn_player()
 
 
-class MultiSnakeApp(App):
+class SnibbleApp(App):
     autostart = None          # GameWidget do wstrzyknięcia (zamiast menu)
 
     def build(self):
-        self.title = 'MultiSnake'
+        self.title = 'Snibble'
         root = FloatLayout()
         root.add_widget(self.autostart or self._menu_box())
         return root
@@ -969,7 +969,7 @@ class MultiSnakeApp(App):
         box = BoxLayout(orientation='vertical', spacing=dp(10),
                         size_hint=(0.6, None), height=dp(340),
                         pos_hint={'center_x': 0.5, 'center_y': 0.5})
-        box.add_widget(Label(text='[b]MultiSnake[/b]', markup=True,
+        box.add_widget(Label(text='[b]Snibble[/b]', markup=True,
                              font_size='34sp', size_hint_y=None,
                              height=dp(60), color=(0.1, 0.5, 0.1, 1)))
         self.ti = TextInput(hint_text='Twoje imię', multiline=False,
