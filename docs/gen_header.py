@@ -27,9 +27,10 @@ LETTERS = {
 }
 WORD = "SNIBBLE"
 CELL = 5.0          # letter width + gap in units
-SCALE = 46          # px per unit
+SCALE = 40          # px per unit
 BODY = 1.05         # body diameter (units) — like game ~0.9-1.05
-PAD = 1.6
+YST = 1.4           # vertical stretch of letters
+PADX, PADY = 1.3, 4.94   # tuned for ~1.86:1 canvas (LinkedIn cover)
 
 def wig(pts, seed, amp=0.05):
     """Mild organic wiggle at corner points only."""
@@ -63,7 +64,7 @@ def catmull(pts, n=14):
     return out
 
 def sc(pts):
-    return [((x + PAD) * SCALE, (y + PAD) * SCALE) for x, y in pts]
+    return [((x + PADX) * SCALE, (y * YST + PADY) * SCALE) for x, y in pts]
 
 def build():
     shapes = []   # (pts_px, fill, outline, head_dir)
@@ -72,9 +73,9 @@ def build():
         path = catmull(wig(base, seed=i * 77 + 5))
         fill, out = SNAKES[i % len(SNAKES)]
         (x1, y1), (x2, y2) = path[-2], path[-1]
-        shapes.append((sc(path), fill, out, (x2 - x1, y2 - y1)))
-    W = int((len(WORD) * CELL + 1.0 + 2 * PAD) * SCALE)
-    H = int((7 + 2 * PAD) * SCALE)
+        shapes.append((sc(path), fill, out, (x2 - x1, (y2 - y1) * YST)))
+    W = int((len(WORD) * CELL + 1.0 + 2 * PADX) * SCALE)
+    H = int((7 * YST + 2 * PADY) * SCALE)
     return shapes, W, H
 
 def rgb(c): return tuple(int(v * 255) for v in c)
