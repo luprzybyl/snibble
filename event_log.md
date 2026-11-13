@@ -238,3 +238,5 @@
   blyskawica ostra (miter+square), zamek = mur z blankami+luk+flaga.
 - build_apk.sh: skrypt budujacy oba archy (armeabi-v7a + arm64-v8a),
   przelacza android.archs, przywraca spec, raportuje wynik.
+- icon.png: ikona aplikacji — cyjanowa glowa weza gracza + kawalek
+  ciala na tle laki (PIL, 1024->512). icon.filename w buildozer.spec.

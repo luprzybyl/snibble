@@ -28,6 +28,9 @@ orientation = landscape
 # (bool) Indicate if the application should be fullscreen or not
 fullscreen = 1
 
+# (str) Application icon
+icon.filename = icon.png
+
 # (list) Permissions
 # brak sieci — gra offline, zero uprawnien
 android.permissions =
