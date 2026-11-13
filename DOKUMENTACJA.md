@@ -77,6 +77,17 @@ offline), `requirements = python3,kivy,filetype`,
 
 ### Który arch?
 
+**Recepta na oba APK:**
+```bash
+# 1) ustaw arch w buildozer.spec:  android.archs = armeabi-v7a
+#    (albo arm64-v8a)
+# 2) build:
+PATH=$HOME/.local/bin:$PATH PIP_BREAK_SYSTEM_PACKAGES=1 \
+  JAVA_HOME=$HOME/.local/jdks/jdk-21.0.13+9 \
+  ~/.local/bin/buildozer android debug
+# 3) powtórz dla drugiego archu
+```
+
 `android.archs` przyjmuje **jeden** arch na build (bug p4a —
 patrz niżej). Aby mieć oba APK, budujesz dwa razy, przełączając:
 
